@@ -1,6 +1,6 @@
 const main = document.querySelector('main');
 const voicesSelect = document.getElementById('voices');
-const testarea = document.getElementById('text');
+const textarea = document.getElementById('text');
 const readBtn = document.getElementById('read');
 const toggleBtn = document.getElementById('toggle');
 const textBox = document.getElementById('text-box');
@@ -59,6 +59,8 @@ const data = [
 
 let voices = [];
 
+const message = new SpeechSynthesisUtterance();
+
 function showCards(data) {
   data.forEach(item => {
     const box = document.createElement('div');
@@ -70,6 +72,14 @@ function showCards(data) {
       <p class="info">${text}</p>
     `;
 
+    box.addEventListener('click', () => {
+      setTextMessage(text);
+      speakText();
+
+      box.classList.add('active');
+      setTimeout(() => box.classList.remove('active'), 1500);
+    });
+
     main.appendChild(box);
   });
 }
@@ -80,11 +90,19 @@ function getVoices() {
   voices = speechSynthesis.getVoices();
   voices.forEach(voice => {
     const option = document.createElement('option');
-    option.value = option.name;
+    option.value = voice.name;
     option.innerText = `${voice.name} (${voice.lang})`;
 
     voicesSelect.appendChild(option);
   });
+}
+
+function setTextMessage(text) {
+  message.text = text;
+}
+
+function speakText() {
+  speechSynthesis.speak(message);
 }
 
 function showModalBox() {
@@ -93,16 +111,29 @@ function showModalBox() {
   document.addEventListener('keydown', e => {
     if (e.keyCode === 27) {
       hideModalBox();
+      textarea.value = '';
     }
   });
 }
 
 function hideModalBox() {
   textBox.classList.remove('show');
+  textarea.value = '';
+}
+
+function setVoice(e) {
+  message.voice = voices.find(voice => voice.name === (e.target.value));
 }
 
 toggleBtn.addEventListener('click', showModalBox);
 closeBtn.addEventListener('click', hideModalBox);
+
 speechSynthesis.addEventListener('voiceschanged', getVoices);
 
+voicesSelect.addEventListener('change', setVoice);
+
+readBtn.addEventListener('click', () => {
+  setTextMessage(textarea.value);
+  speakText();
+});
 getVoices();
