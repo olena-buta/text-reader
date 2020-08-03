@@ -3,6 +3,7 @@ const voicesSelect = document.getElementById('voices');
 const testarea = document.getElementById('text');
 const readBtn = document.getElementById('read');
 const toggleBtn = document.getElementById('toggle');
+const textBox = document.getElementById('text-box');
 const closeBtn = document.getElementById('close');
 
 const data = [
@@ -55,6 +56,9 @@ const data = [
     text: "I want to go to grandmas"
   },
 ];
+
+let voices = [];
+
 function showCards(data) {
   data.forEach(item => {
     const box = document.createElement('div');
@@ -72,3 +76,33 @@ function showCards(data) {
 
 showCards(data);
 
+function getVoices() {
+  voices = speechSynthesis.getVoices();
+  voices.forEach(voice => {
+    const option = document.createElement('option');
+    option.value = option.name;
+    option.innerText = `${voice.name} (${voice.lang})`;
+
+    voicesSelect.appendChild(option);
+  });
+}
+
+function showModalBox() {
+  textBox.classList.add('show');
+
+  document.addEventListener('keydown', e => {
+    if (e.keyCode === 27) {
+      hideModalBox();
+    }
+  });
+}
+
+function hideModalBox() {
+  textBox.classList.remove('show');
+}
+
+toggleBtn.addEventListener('click', showModalBox);
+closeBtn.addEventListener('click', hideModalBox);
+speechSynthesis.addEventListener('voiceschanged', getVoices);
+
+getVoices();
